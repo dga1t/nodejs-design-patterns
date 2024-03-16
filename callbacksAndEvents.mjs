@@ -38,32 +38,33 @@ class FindRegex extends EventEmitter {
   }
 }
 
-// 3.2 && 3.3 && 3.4
+// 3.2 && 3.3 && 3.4 mixed together
 function ticker(timeLimit, cb) {
-  let tickCounter = 0
   const INTERVAL = 50
+  const ERR = new Error('OMG tick timestamp is divisible by 5')
+
+  let tickCounter = 0
+
   const start = Date.now()
   const eventEmitter = new EventEmitter()
 
-  nextTick(() => emitTick())
-
   function emitTick() {
-    const now = Date.now()
-    eventEmitter.emit('tick')
+    eventEmitter.emit('tick', Date.now() - start)
     tickCounter++
-    if (now % 5 === 0) eventEmitter.emit('error')
+
+    if (Date.now() % 5 === 0) {
+      eventEmitter.emit('error', ERR)
+      return cb(ERR, tickCounter)
+    }
   }
+
+  nextTick(() => emitTick())
 
   function repeat() {
     emitTick()
-    const now = Date.now()
-    const timeDiff = now - start
 
-    console.log('tickCounter --- ', tickCounter)
-    console.log('timeDiff --- ', timeDiff)
-
-    if (timeDiff >= timeLimit) {
-      return cb(tickCounter)
+    if (Date.now() - start >= timeLimit) {
+      return cb(null, tickCounter)
     }
 
     setTimeout(repeat, INTERVAL)
@@ -74,4 +75,24 @@ function ticker(timeLimit, cb) {
   return eventEmitter
 }
 
-ticker(200, (counter) => console.log('number of ticks --- ', counter))
+// example usage: node callbacksAndEvents.mjs 200
+(() => {
+  const ms = parseInt(process.argv[2])
+
+  if (isNaN(ms)) {
+    console.log('please provide a number of milliseconds as an argument')
+    return
+  }
+
+  const tick = ticker(ms, (error, counter) => {
+    if (error) {
+      console.log(error)
+      return
+    }
+    console.log('number of tick events fired: ', counter)
+  })
+
+  tick
+    .on('tick', (ms) => console.log('tick after ms: ', ms))
+    .on('error', (error) => console.log(error))
+})()
