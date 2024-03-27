@@ -3,55 +3,65 @@ import { readFile, appendFile } from "node:fs"
 
 // chapter 4 exercises
 
+/**
+ * Sequential Iteration pattern with callbacks. Pseudo:
+ *
+ * iterate() {
+ *   if (index === tasks.length) return
+ *
+ *   task = tasks[index];
+ *
+ *   task(() => iterate(index++));
+ * }
+ *
+ * iterate(0);
+ */
 
-const DEST_FILE = './result.txt'
+// 4.1
+
+// test files
+const DEST = './result.txt'
 const FILE1 = './test1.txt'
 const FILE2 = './test2.txt'
 const FILE3 = './test3.txt'
 
-// 4.1
-function concatFiles(dest, cb, ...srcFiles) {
-  console.log('srcFiles === ', srcFiles)
+function concatFiles(files, dest, cb) {
 
   function iterate(idx) {
-    if (idx === srcFiles.length) {
+    if (idx === files.length) {
       return cb()
     }
 
-    readFromSrcAndWriteToDest(srcFiles[idx], function (err) {
+    readAndAppend(files[idx], dest, (err) => {
       if (err) {
         return cb(err)
       }
       iterate(idx + 1)
     })
   }
-
-  function readFromSrcAndWriteToDest(filePath, cb) {
-    readFile(filePath, function (err, fileContent) {
-      console.log(`file ${filePath} content: ${fileContent}`)
-
-      if (err) {
-        return cb(err)
-      }
-
-      appendFile(DEST_FILE, fileContent, function (err) {
-        if (err) {
-          return cb(err)
-        }
-        console.log(`done appending from file: ${filePath}`)
-      })
-    })
-    cb()
-  }
-
   iterate(0)
 }
 
-function finish(err) {
-  if (err) {
-    console.log(' error while concatinating: ', err)
-  }
-  console.log('*** done iterating ***')
+function readAndAppend(filePath, dest, cb) {
+  readFile(filePath, (err, data) => {
+    if (err) {
+      console.error('Error, reading file: ', err)
+      return cb(err)
+    }
+
+    appendFile(dest, data, (err) => {
+      if (err) {
+        console.error('Error, appending to file: ', err)
+        return cb(err)
+      }
+      cb(null)
+    })
+  })
 }
 
-concatFiles(DEST_FILE, finish, FILE1, FILE2, FILE3)
+concatFiles([FILE1, FILE2, FILE3], DEST, (err) => {
+  if (err) {
+    return console.error(err)
+  }
+  return console.log('Done appending to: ', DEST)
+})
