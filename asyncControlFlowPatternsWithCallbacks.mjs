@@ -1,4 +1,5 @@
-import { readFile, appendFile } from "node:fs"
+import { readFile, appendFile, readdir, stat } from "node:fs"
+import path from "node:path"
 
 
 // chapter 4 exercises
@@ -59,9 +60,72 @@ function readAndAppend(filePath, dest, cb) {
   })
 }
 
-concatFiles([FILE1, FILE2, FILE3], DEST, (err) => {
+// concatFiles([FILE1, FILE2, FILE3], DEST, (err) => {
+//   if (err) {
+//     return console.error(err)
+//   }
+//   return console.log('Done appending to: ', DEST)
+// })
+
+
+// 4.2
+
+const TESTDIR = '/home/dp/Pictures'
+
+let activeDir = 0
+let filesDiscovered = []
+
+function listNestedFiles(dir, cb) {
+  readDir(dir, (err, files) => {
+    if (err) {
+      return cb(err)
+    }
+    return cb(null, files)
+  })  
+}
+
+function readDir(dir, cb) {
+  activeDir++
+
+  return readdir(dir, { withFileTypes: true }, (err, files) => {
+    if (err) {
+      cb(err)
+    }
+    
+    for (let file of files) {
+
+      if (file.isDirectory()) {
+        console.log('*** Found a directory: ', path)        
+        readDir(path.join(dir, file.name), cb)
+
+      } else {
+        console.log('*** Found a file: ', path)        
+        filesDiscovered.push(file)
+      }
+    }
+
+    activeDir--
+
+    if (activeDir <= 0) {
+      return cb(null, filesDiscovered)
+    }
+  })
+}
+
+// function isDirectory(dir, cb) {
+//   return stat(dir, (err, stats) => {
+//     console.log('dir --- ', dir)
+
+//     if (err) {
+//       cb(err)
+//     }
+//     return stats.isDirectory() == true ? readDir(dir, cb) : console.log(dir)
+//   })
+// }
+
+listNestedFiles(TESTDIR, (err, files) => {
   if (err) {
-    return console.error(err)
+    console.log('Something went wrong: ', err)
   }
-  return console.log('Done appending to: ', DEST)
+  console.log('Files discovered: ', files)
 })
