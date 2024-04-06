@@ -112,20 +112,49 @@ function readDir(dir, cb) {
   })
 }
 
-// function isDirectory(dir, cb) {
-//   return stat(dir, (err, stats) => {
-//     console.log('dir --- ', dir)
+// listNestedFiles(TESTDIR, (err, files) => {
+//   if (err) {
+//     console.log('Something went wrong: ', err)
+//   }
+//   console.log('Files discovered: ', files)
+// })
 
-//     if (err) {
-//       cb(err)
-//     }
-//     return stats.isDirectory() == true ? readDir(dir, cb) : console.log(dir)
-//   })
-// }
 
-listNestedFiles(TESTDIR, (err, files) => {
+// 4.3
+
+const TESTDIR2 = '/home/dp/projects/nodejs-design-patterns'
+const KEYWORD = 'test1'
+
+function recursiveFind(dir, keyword, cb) {
+  findKeyword(dir, keyword, (err, foundPath) => {
+    if (err) {
+      return cb(err)
+    }
+    return cb(null, foundPath)
+  })
+}
+
+function findKeyword(dir, keyword, cb) {
+  return readdir(dir, { withFileTypes: true }, (err, files) => {
+    if (err) {
+      cb(err)
+    }
+    
+    for (let file of files) {
+      
+      if (file.name.includes(keyword)) {
+        return cb(null, file.name)
+
+      } else if (file.isDirectory()) {
+        findKeyword(path.join(dir, file.name), keyword, cb)
+      }
+    }
+  })
+}
+
+recursiveFind(TESTDIR2, KEYWORD, (err, found) => {
   if (err) {
     console.log('Something went wrong: ', err)
   }
-  console.log('Files discovered: ', files)
+  console.log('Found the file that matches the keyword: ', found)        
 })
