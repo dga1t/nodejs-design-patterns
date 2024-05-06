@@ -1,4 +1,6 @@
-// Implement your own version of Promise.all() leveraging promises, async/await or a combination of the two.
+/*
+  Implement your own version of Promise.all() leveraging promises, async/await or a combination of the two.
+*/
 
 async function promiseAll(promises) {
   return new Promise((resolve, reject) => {
