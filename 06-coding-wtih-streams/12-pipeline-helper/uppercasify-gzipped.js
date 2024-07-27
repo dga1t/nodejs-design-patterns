@@ -1,12 +1,10 @@
-import { createGzip, createGunzip } from 'zlib'
-import { Transform, pipeline } from 'stream'
-import { promisify } from 'util'
+import { createGzip, createGunzip } from 'node:zlib'
+import { Transform } from 'stream'
+import { pipeline } from 'node:stream/promises'
 
 // This example shows how to create a complicate pipeline using stream.pipeline()
 
 // Usage: echo 'Hello World!' | gzip | node uppercasify-gzipped.js | gunzip
-
-const pipelinePromise = promisify(pipeline)
 
 const uppercasify = new Transform({
   transform (chunk, enc, cb) {
@@ -17,7 +15,7 @@ const uppercasify = new Transform({
 
 async function main () {
   try {
-    await pipelinePromise(
+    await pipeline(
       process.stdin,
       createGunzip(),
       uppercasify,
