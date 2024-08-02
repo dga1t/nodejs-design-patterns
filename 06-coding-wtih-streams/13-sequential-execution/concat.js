@@ -1,6 +1,8 @@
 import { concatFiles } from './concat-files.js'
 
-// This example shows how to create a sequential execution flow using streams.
+// Pattern: 
+// Use a stream or a combination of streams to iterate over a set of asynchronous tasks in sequence
+
 // Usage: node concat.js <destination> <source1> <source2> <source3> ...
 
 async function main () {
