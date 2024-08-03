@@ -1,7 +1,9 @@
-import { pipeline } from 'stream'
-import { createReadStream, createWriteStream } from 'fs'
+import { pipeline } from 'node:stream'
+import { createReadStream, createWriteStream } from 'node:fs'
+
 import split from 'split'
-import request from 'request-promise'
+import superagent from 'superagent'
+
 import { LimitedParallelStream } from './limited-parallel-stream.js'
 
 pipeline(
@@ -15,7 +17,7 @@ pipeline(
       }
       console.log(url)
       try {
-        await request.head(url, { timeout: 5 * 1000 })
+        await superagent.head(url, { timeout: 5 * 1000 })
         push(`${url} is up\n`)
       } catch (err) {
         push(`${url} is down\n`)
