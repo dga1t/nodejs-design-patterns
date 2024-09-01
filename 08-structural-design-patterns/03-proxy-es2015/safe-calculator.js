@@ -1,3 +1,5 @@
+// This example demonstrate how to create proxies using the ES2015 Proxy helper
+
 class StackCalculator {
   constructor () {
     this.stack = []
