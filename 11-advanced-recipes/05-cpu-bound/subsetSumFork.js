@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
+import { EventEmitter } from 'node:events'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { ProcessPool } from './processPool.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
